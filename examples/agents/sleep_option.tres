@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="UtilityAIOption" load_steps=3 format=3 uid="uid://cxi6begdkwm6i"]
+
+[ext_resource type="Resource" uid="uid://bkwladxx8cf6c" path="res://examples/agents/sleep_behavior.tres" id="1_kxsek"]
+[ext_resource type="Script" path="res://addons/utility_ai/core/utility_ai_option.gd" id="2_5lmjr"]
+
+[resource]
+script = ExtResource("2_5lmjr")
+behavior = ExtResource("1_kxsek")
+action = "option_sleep"

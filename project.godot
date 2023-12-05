@@ -11,8 +11,13 @@ config_version=5
 [application]
 
 config/name="Utility AI"
-config/features=PackedStringArray("4.0", "Forward Plus")
+run/main_scene="res://examples/agents/agent_example.tscn"
+config/features=PackedStringArray("4.2", "Forward Plus")
+
+[debug]
+
+gdscript/warnings/inference_on_variant=1
 
 [editor_plugins]
 
-enabled=PackedStringArray("res://addons/gut/plugin.cfg", "res://addons/utility_ai/plugin.cfg")
+enabled=PackedStringArray("res://addons/utility_ai/plugin.cfg")

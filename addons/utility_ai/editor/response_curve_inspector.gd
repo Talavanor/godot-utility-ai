@@ -11,6 +11,11 @@ func _can_handle(object):
 func _parse_property(
 	object, _type, name, _hint_type, _hint_string, _usage_flags, _wide
 ):
+	
+	# Needed to add this cast in order to prevent godot from throwing an error
+	# related to the visual shader nodes for some reason
+	object = object as UtilityAIResponseCurve
+
 	if object == null:
 		return
 

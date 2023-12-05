@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="UtilityAIOption" load_steps=3 format=3 uid="uid://cot4bi32n1jg0"]
+
+[ext_resource type="Script" path="res://addons/utility_ai/core/utility_ai_option.gd" id="1_3nvbq"]
+[ext_resource type="Resource" uid="uid://xvhg7usd78rv" path="res://examples/agents/watch_tv_behavior.tres" id="1_cnyu8"]
+
+[resource]
+script = ExtResource("1_3nvbq")
+behavior = ExtResource("1_cnyu8")
+action = "option_watch_tv"

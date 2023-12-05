@@ -1,10 +1,13 @@
-[gd_scene load_steps=7 format=3 uid="uid://df642cgly5okr"]
+[gd_scene load_steps=11 format=3 uid="uid://df642cgly5okr"]
 
 [ext_resource type="Script" path="res://examples/agents/agent.gd" id="1_esxyg"]
 [ext_resource type="Script" path="res://examples/agents/agent_example.gd" id="1_kjrhq"]
 [ext_resource type="Script" path="res://examples/agents/needs_observer.gd" id="3_cib1g"]
 [ext_resource type="Script" path="res://examples/agents/agent_needs.gd" id="3_hk7vr"]
+[ext_resource type="Resource" uid="uid://druuscqfopxaq" path="res://examples/agents/eat_option.tres" id="4_jxsl8"]
+[ext_resource type="Resource" uid="uid://cxi6begdkwm6i" path="res://examples/agents/sleep_option.tres" id="5_lbfir"]
 [ext_resource type="Script" path="res://examples/agents/state_observer.gd" id="5_pl8xg"]
+[ext_resource type="Resource" uid="uid://cot4bi32n1jg0" path="res://examples/agents/watch_tv_option.tres" id="6_iwbbo"]
 
 [sub_resource type="Resource" id="Resource_1r6we"]
 script = ExtResource("3_hk7vr")
@@ -12,12 +15,20 @@ food = 0.5
 fun = 0.5
 energy = 0.5
 
-[node name="AgentExample" type="Node"]
+[sub_resource type="SystemFont" id="SystemFont_swjfx"]
+font_names = PackedStringArray("Fira Code")
+font_weight = 500
+multichannel_signed_distance_field = true
+
+[node name="AgentExample" type="Node" node_paths=PackedStringArray("target_agent", "value_debug_label")]
 script = ExtResource("1_kjrhq")
+target_agent = NodePath("Agent")
+value_debug_label = NodePath("GUI/ValueDebugLabel")
 
 [node name="Agent" type="Node2D" parent="."]
 script = ExtResource("1_esxyg")
 needs = SubResource("Resource_1r6we")
+option_resources = Array[Resource("res://addons/utility_ai/core/utility_ai_option.gd")]([ExtResource("4_jxsl8"), ExtResource("5_lbfir"), ExtResource("6_iwbbo")])
 
 [node name="Timer" type="Timer" parent="Agent"]
 autostart = true
@@ -121,5 +132,18 @@ layout_mode = 2
 size_flags_horizontal = 3
 horizontal_alignment = 1
 script = ExtResource("5_pl8xg")
+
+[node name="ValueDebugLabel" type="RichTextLabel" parent="GUI"]
+layout_mode = 0
+offset_left = 32.0
+offset_top = 32.0
+offset_right = 821.0
+offset_bottom = 226.0
+theme_override_fonts/normal_font = SubResource("SystemFont_swjfx")
+theme_override_fonts/mono_font = SubResource("SystemFont_swjfx")
+theme_override_font_sizes/normal_font_size = 12
+bbcode_enabled = true
+text = "Testing"
+fit_content = true
 
 [connection signal="timeout" from="Agent/Timer" to="Agent" method="_on_timer_timeout"]

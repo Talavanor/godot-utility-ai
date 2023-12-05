@@ -3,6 +3,7 @@
 class_name Agent
 extends Node2D
 
+@export var show_value_debug : bool = true
 
 signal state_changed(state)
 
@@ -15,6 +16,7 @@ enum State {
 }
 
 
+# Provides a needs resource that will dictate
 @export var needs: AgentNeeds
 var state: State = State.EATING
 
@@ -22,38 +24,52 @@ var state: State = State.EATING
 var _time_until_next_decision: int = 1
 
 
-@onready var _options: Array[UtilityAIOption] = [
-	UtilityAIOption.new(
-		preload("res://examples/agents/eat.tres"), needs, eat
-	),
-	UtilityAIOption.new(
-		preload("res://examples/agents/sleep.tres"), needs, sleep
-	),
-	UtilityAIOption.new(
-		preload("res://examples/agents/watch_tv.tres"), needs, watch_tv
-	),
-]
+
+@export var option_resources: Array[UtilityAIOption]
+@onready var _options : Array[UtilityAIOption] = option_resources
+
+# NOTE: These SEEM to be in the onready instead of exported, because both the needs and the related
+# callables needs to be passed into the init. Seems like this means that all bots would need to have
+# their logic defined in code?
+# @onready var _options: Array[UtilityAIOption] = [
+# 	UtilityAIOption.new(
+# 		preload("res://examples/agents/eat.tres"), needs, eat
+# 	),
+# 	UtilityAIOption.new(
+# 		preload("res://examples/agents/sleep.tres"), needs, sleep
+# 	),
+# 	UtilityAIOption.new(
+# 		preload("res://examples/agents/watch_tv.tres"), needs, watch_tv
+# 	),
+# ]
+
+func _ready() -> void:
+	for option in _options:
+		option.context = needs
 
 
-func eat():
+func option_eat():
 	state = State.EATING
 	_time_until_next_decision = 5
 	state_changed.emit(state)
 
 
-func sleep():
+func option_sleep():
 	state = State.SLEEPING
 	_time_until_next_decision = 10
 	state_changed.emit(state)
 
 
-func watch_tv():
+func option_watch_tv():
 	state = State.WATCHING_TV
 	_time_until_next_decision = 1
 	state_changed.emit(state)
 
 
+
+
 func _on_timer_timeout():
+
 	# Adjust the agent's needs based on their state.
 	# In a real project, this would be managed by something more sophisticated!
 	if state == State.EATING:
@@ -86,6 +102,15 @@ func _on_timer_timeout():
 		_time_until_next_decision -= 1
 		return
 
+
 	# Choose the action with the highest utility, and change state.
 	var decision := UtilityAI.choose_highest(_options)
-	decision.action.call()
+	
+	# If we're dealing with a string, then we assume we're trying to call a method
+	# We currently don't check if we have it because we're dynamically building the list and can 
+	# ASSUME it exists
+	if decision.action is String:
+		if has_method(decision.action):
+			var callable := Callable(self, decision.action)
+			callable.call()
+		#decision.action.call()

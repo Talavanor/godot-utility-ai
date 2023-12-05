@@ -20,7 +20,7 @@ extends Resource
 ## the values of input values. Common examples include: a [Resource]
 ## describing an agent's state, or a [Dictionary] mapping input keys to input
 ## values.
-var context: Variant
+var context: Variant = null
 
 ## An optional value describing any action(s) that should be triggered in the
 ## event that this option is chosen.
@@ -32,15 +32,15 @@ var context: Variant
 ## [Resource] describing the chosen action.
 var action: Variant
 
+# func _init(
+# 	p_behavior: UtilityAIBehavior = behavior,
+# 	p_context:= context,
+# 	p_action := action
+# ):
+# 	behavior = p_behavior
+# 	context = p_context
+# 	action = p_action
 
-func _init(
-	p_behavior: UtilityAIBehavior = null,
-	p_context: Variant = null,
-	p_action: Variant = null
-):
-	behavior = p_behavior
-	context = p_context
-	action = p_action
 
 
 ## Calculate the utility of this option, using [member behavior] and
@@ -67,11 +67,13 @@ func _set(property: StringName, value: Variant) -> bool:
 			TYPE_STRING:
 				action = String()
 			TYPE_OBJECT:
-				action = Object()
+				action = Object.new()
 			TYPE_DICTIONARY:
 				action = Dictionary()
 			TYPE_ARRAY:
 				action = Array()
+			TYPE_CALLABLE:
+				action = String()
 		notify_property_list_changed()
 		return true
 	return false
@@ -85,21 +87,46 @@ func _get(property: StringName) -> Variant:
 
 func _get_property_list():
 	var properties = []
+
+	# This uses the agent class as a hard-coded source for possible methods
+	var agent_actions := Agent.new().get_method_list()
+	var agent_actions_hint : String
+	var loop_index : int = 0
+	for method in agent_actions:
+		if "option_" in method["name"]:
+			agent_actions_hint += (method["name"] + ",") #(method["name"] + ":" + str(loop_index) + ",")
+			loop_index += 1
+	agent_actions_hint = agent_actions_hint.left(-1)
+	#print(agent_actions_hint)
 	properties.append(
 		{
 			"name": "action_type",
 			"type": TYPE_INT,
 			"usage": PROPERTY_USAGE_EDITOR,
 			"hint": PROPERTY_HINT_ENUM,
-			"hint_string": "Variant:0,String:4,Object:24,Dictionary:27,Array:28"
+			"hint_string": "Variant:0,Agent Method:4,Object:24,Dictionary:27,Array:28"
 		}
 	)
-	properties.append(
-		{
-			"name": "action",
-			"type": get("action_type"),
-			"usage": PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_NIL_IS_VARIANT,
-			"hint": PROPERTY_HINT_NONE,
-		}
-	)
+
+	# IF we're using a string then we pre-populate it with methods available to the agent class
+	if typeof(get("action")) != TYPE_STRING:
+		properties.append(
+			{
+				"name": "action",
+				"type": get("action_type"),
+				"usage": PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_NIL_IS_VARIANT,
+				"hint": PROPERTY_HINT_NONE,
+			}
+		)
+	else:
+		properties.append(
+			{
+				"name": "action",
+				"type": TYPE_STRING,
+				"usage": PROPERTY_USAGE_DEFAULT,
+				"hint": PROPERTY_HINT_ENUM_SUGGESTION,
+				"hint_string": agent_actions_hint,
+			}
+		)
+		print("Agent Action = " + action)
 	return properties
